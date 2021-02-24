@@ -1,67 +1,63 @@
 import java.io.*;
 import java.util.*;
 
-public class normalQueue {
+public class StackToQueueAdaptorAdd_Efficient {
 
-	public static class CustomQueue {
-		int[] data;
-		int front;
-		int size;
+	public static class StackToQueueAdapter {
+		Stack<Integer> mainS;
+		Stack<Integer> helperS;
 
-		public CustomQueue(int cap) {
-			data = new int[cap];
-			front = 0;
-			size = 0;
+		public StackToQueueAdapter() {
+			mainS = new Stack<>();
+			helperS = new Stack<>();
 		}
 
 		int size() {
-			return size;
-		}
-
-		void display() {
-			for (int i = 0; i < size; i++) {
-				int idx = (front + i) % data.length;
-				System.out.print(data[idx] + " ");
-			}
-			System.out.println();
+			return mainS.size();
 		}
 
 		void add(int val) {
-			if (size == data.length) {
-				System.out.println("Queue overflow");
-			} else {
-				int rear = (front + size) % data.length;
-				data[rear] = val;
-				size++;
-			}
+			mainS.push(val);
 		}
 
 		int remove() {
-			if (size == 0) {
+			if (size() == 0) {
 				System.out.println("Queue underflow");
 				return -1;
 			} else {
-				int val = data[front];
-				front = (front + 1) % data.length;
-				size--;
+				while (mainS.size() > 1) {
+					helperS.push(mainS.pop());
+				}
+				int val = mainS.pop();
+				// helperS.push(val);
+				while (helperS.size() > 0) {
+					mainS.push(helperS.pop());
+				}
 				return val;
 			}
 		}
 
 		int peek() {
-			if (size == 0) {
+			if (size() == 0) {
 				System.out.println("Queue underflow");
 				return -1;
 			} else {
-				return data[front];
+				while (mainS.size() > 1) {
+					helperS.push(mainS.pop());
+				}
+				int val = mainS.pop();
+				helperS.push(val);
+				while (helperS.size() > 0) {
+					mainS.push(helperS.pop());
+				}
+				return val;
 			}
 		}
 	}
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int n = Integer.parseInt(br.readLine());
-		CustomQueue qu = new CustomQueue(n);
+		StackToQueueAdapter qu = new StackToQueueAdapter();
 
 		String str = br.readLine();
 		while (str.equals("quit") == false) {
@@ -80,8 +76,6 @@ public class normalQueue {
 				}
 			} else if (str.startsWith("size")) {
 				System.out.println(qu.size());
-			} else if (str.startsWith("display")) {
-				qu.display();
 			}
 			str = br.readLine();
 		}
